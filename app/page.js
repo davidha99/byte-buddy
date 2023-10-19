@@ -1,95 +1,82 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import React, { useCallback } from "react";
+import InputForm from "./components/InputForm";
+import Conversations from "./components/Conversations";
+import openai from "./utils/openai";
+import styled from "styled-components";
 
 export default function Home() {
+  const [converstations, setConversations] = React.useState([]);
+  const [aiMessage, setAiMessage] = React.useState("");
+  const [userMessage, setUserMessage] = React.useState("");
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault(); //To prevent the default form submission behaviour
+
+      // Storing the user message to the state
+      setConversations((prev) => {
+        return [
+          ...prev,
+          {
+            message: userMessage,
+            isHuman: true,
+          },
+        ];
+      });
+      setUserMessage(""); // Emptying the input field
+
+      const stream = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: userMessage }],
+        stream: true, // This is required to stream the response
+      });
+
+      let streamedMessage = "";
+
+      // The stream will be read till its closed
+      for await (const part of stream) {
+        setAiMessage((prev) => prev + part.choices[0].delta.content);
+
+        // Once the entire message is received, the stream will receive the finish_reason as 'stop;
+        if (part.choices[0].finish_reason === "stop") {
+          setConversations((prev) => {
+            return [
+              ...prev,
+              {
+                message: streamedMessage,
+                isHuman: false,
+              },
+            ];
+          });
+
+          setAiMessage("");
+          break;
+        } else {
+          streamedMessage += part.choices[0].delta.content;
+        }
+      }
+    },
+    [userMessage]
+  );
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    <Wrapper>
+      <Conversations conversations={converstations} aiMessage={aiMessage} />
+      <InputForm
+        userMessage={userMessage}
+        setUserMessage={setUserMessage}
+        handleSubmit={handleSubmit}
+      />
+    </Wrapper>
+  );
 }
+
+const Wrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: darkslateblue;
+`;
