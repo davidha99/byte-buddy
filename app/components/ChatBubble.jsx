@@ -5,7 +5,11 @@ function ChatBubble({ isHuman, message }) {
     <Wrapper
       style={{ "--justify-content": isHuman ? "flex-end" : "flex-start" }}
     >
-      <Bubble style={{ "--background": isHuman ? "lightblue" : "white" }}>
+      <Bubble
+        style={{
+          "--background": isHuman ? "var(--slate-800)" : "var(--sky-800)",
+        }}
+      >
         {message}
       </Bubble>
     </Wrapper>
@@ -26,7 +30,7 @@ const Bubble = styled.div`
   padding: 10px;
   border-radius: 10px;
   margin: 14px;
-  color: black;
+  color: var(--slate-100);
   font-family: sans-serif;
   font-weight: 400;
 `;
