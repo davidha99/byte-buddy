@@ -32,13 +32,13 @@ function InputForm({ userMessage, setUserMessage, handleSubmit }) {
 const MessageForm = styled.form`
   display: flex;
   justify-content: center;
-  padding: 20px 0;
+  padding: 20px 15px;
   border-top: 2px solid var(--slate-900);
 `;
 
 const MessageArea = styled.div`
   display: flex;
-  min-width: min(700px, 70%);
+  min-width: min(700px, 100%);
   justify-content: center;
   gap: var(--space);
   padding: var(--space);
