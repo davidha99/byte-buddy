@@ -9,6 +9,7 @@ export default function Chat() {
   const [conversations, setConversations] = React.useState([]);
   const [aiMessage, setAiMessage] = React.useState("");
   const [userMessage, setUserMessage] = React.useState("");
+  const textAreaRef = React.useRef(null);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -25,6 +26,7 @@ export default function Chat() {
         ];
       });
       setUserMessage(""); // Emptying the input field
+      textAreaRef.current.focus(); // Focusing the input field again
 
       const stream = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
@@ -64,6 +66,7 @@ export default function Chat() {
     <Wrapper>
       <Conversations conversations={conversations} aiMessage={aiMessage} />
       <InputForm
+        ref={textAreaRef}
         userMessage={userMessage}
         setUserMessage={setUserMessage}
         handleSubmit={handleSubmit}

@@ -3,24 +3,26 @@ import Icon from "./Icon";
 import VisuallyHidden from "./VisuallyHidden";
 import React from "react";
 
-function InputForm({ userMessage, setUserMessage, handleSubmit }) {
-  const textAreaRef = React.useRef(null);
-
+function InputForm({ userMessage, setUserMessage, handleSubmit }, ref) {
   React.useEffect(() => {
-    textAreaRef.current.focus();
-  }, []);
+    ref.current.focus();
+  }, [ref]);
 
   return (
     <MessageForm onSubmit={handleSubmit} style={{ "--space": 15 + "px" }}>
       <MessageArea>
         <MessageText
-          ref={textAreaRef}
+          ref={ref}
           placeholder="¿En qué puedo ayudarte?"
           id="message-input"
           value={userMessage}
           onChange={(event) => setUserMessage(event.target.value)}
         />
-        <Button type="submit" style={{ "--size": 40 + "px" }}>
+        <Button
+          disabled={!userMessage.trim()}
+          type="submit"
+          style={{ "--size": 40 + "px" }}
+        >
           <IconWrapper id="send" size={24} strokeWidth={1.5} />
           <VisuallyHidden>Enviar</VisuallyHidden>
         </Button>
@@ -72,6 +74,16 @@ const Button = styled.button`
   padding: var(--space);
   background-color: var(--sky-800);
   color: var(--slate-100);
+
+  &:enabled {
+    transition: 0.3s ease-in-out;
+  }
+
+  &:disabled {
+    pointer-events: none;
+    background-color: transparent;
+    transition: 0.2s ease-in-out;
+  }
 `;
 
 const IconWrapper = styled(Icon)`
@@ -80,4 +92,4 @@ const IconWrapper = styled(Icon)`
   margin: auto;
 `;
 
-export default InputForm;
+export default React.forwardRef(InputForm);
