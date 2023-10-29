@@ -29,7 +29,7 @@ const Bubble = styled.div`
   background: var(--background);
   padding: 10px;
   border-radius: 10px;
-  margin: 14px;
+  margin: 10px 0;
   color: var(--slate-100);
   font-family: sans-serif;
   font-weight: 400;
