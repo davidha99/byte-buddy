@@ -1,10 +1,14 @@
 import ChatBubble from "./ChatBubble";
 import styled from "styled-components";
+import React from "react";
+import useChatScroll from "../hooks/useChatScroll";
 
 function Conversations({ conversations, aiMessage }) {
+  const chatRef = useChatScroll();
+
   return (
     <Wrapper>
-      <Chat>
+      <Messages ref={chatRef}>
         {conversations &&
           conversations.map((conversation, index) => {
             return (
@@ -16,25 +20,23 @@ function Conversations({ conversations, aiMessage }) {
             );
           })}
         {aiMessage && <ChatBubble isHuman={false} message={aiMessage} />}
-      </Chat>
+      </Messages>
     </Wrapper>
   );
 }
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 90%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  margin: 0 auto;
-  background: #625a91;
+  overflow: auto;
+  flex: 1;
 `;
 
-const Chat = styled.div`
-  max-height: 800px;
+const Messages = styled.div`
   overflow-y: auto;
-  padding: 30px;
+  padding: 15px;
 `;
 
 export default Conversations;
