@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback } from "react";
 import InputForm from "./InputForm";
+import Suggestions from "./Suggestions";
 import Conversations from "./Conversations";
 import openai from "../utils/openai";
 import styled from "styled-components";
@@ -11,7 +12,9 @@ export default function Chat() {
   const [chatHistory, setChatHistory] = React.useState([byteBuddy]);
   const [aiMessage, setAiMessage] = React.useState("");
   const [userMessage, setUserMessage] = React.useState("");
+  const [selectedSuggestion, setSelectedSuggestion] = React.useState("");
   const textAreaRef = React.useRef(null);
+  const submitRef = React.useRef(null);
 
   React.useEffect(() => {
     async function getWelcomeMessage() {
@@ -69,14 +72,14 @@ export default function Chat() {
         return [
           ...prev,
           {
-            message: userMessage,
+            message: userMessage || selectedSuggestion,
             isHuman: true,
           },
         ];
       });
 
       setChatHistory((prev) => {
-        return [...prev, userMessage];
+        return [...prev, userMessage || selectedSuggestion];
       });
 
       setUserMessage(""); // Emptying the input field
@@ -89,7 +92,9 @@ export default function Chat() {
             role: "user",
             content: `Previous interactions: [${chatHistory.join(
               ","
-            )}]. Knowing previous messages, answer this message/question: ${userMessage}`,
+            )}]. Knowing previous messages, answer this message/question: ${
+              userMessage || selectedSuggestion
+            }`,
           },
         ],
         stream: true, // This is required to stream the response
@@ -124,16 +129,24 @@ export default function Chat() {
         }
       }
     },
-    [userMessage, chatHistory]
+    [userMessage, chatHistory, selectedSuggestion]
   );
 
   return (
     <Wrapper>
       <Conversations conversations={conversations} aiMessage={aiMessage} />
+
+      <Suggestions
+        ref={submitRef}
+        setSelectedSuggestion={setSelectedSuggestion}
+      />
+
       <InputForm
-        ref={textAreaRef}
+        ref={[textAreaRef, submitRef]}
         userMessage={userMessage}
         setUserMessage={setUserMessage}
+        selectedSuggestion={selectedSuggestion}
+        setSelectedSuggestion={setSelectedSuggestion}
         handleSubmit={handleSubmit}
       />
     </Wrapper>
