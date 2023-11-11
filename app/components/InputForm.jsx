@@ -3,17 +3,26 @@ import Icon from "./Icon";
 import VisuallyHidden from "./VisuallyHidden";
 import React from "react";
 
-function InputForm({ userMessage, setUserMessage, handleSubmit }, ref) {
+function InputForm(
+  {
+    userMessage,
+    setUserMessage,
+    selectedSuggestion,
+    setSelectedSuggestion,
+    handleSubmit,
+  },
+  [textAreaRef, submitRef]
+) {
   React.useEffect(() => {
-    ref.current.focus();
-  }, [ref]);
+    textAreaRef.current.focus();
+  }, [textAreaRef]);
 
   return (
     <MessageForm onSubmit={handleSubmit} style={{ "--space": 15 + "px" }}>
       <MessageArea>
         <MessageText
-          ref={ref}
-          placeholder="¿En qué puedo ayudarte?"
+          ref={textAreaRef}
+          placeholder="How can I help you?"
           id="message-input"
           value={userMessage}
           onChange={(event) => setUserMessage(event.target.value)}
@@ -27,6 +36,12 @@ function InputForm({ userMessage, setUserMessage, handleSubmit }, ref) {
           <VisuallyHidden>Enviar</VisuallyHidden>
         </Button>
       </MessageArea>
+      <SuggestionHiddenInput
+        ref={submitRef}
+        type="submit"
+        value={selectedSuggestion}
+        onChange={(event) => setSelectedSuggestion(event.target.value)}
+      />
     </MessageForm>
   );
 }
@@ -60,6 +75,10 @@ const MessageText = styled.textarea`
   &::placeholder {
     color: var(--slate-600);
   }
+`;
+
+const SuggestionHiddenInput = styled.input`
+  display: none;
 `;
 
 const Button = styled.button`
